@@ -39,7 +39,7 @@ export default function Home() {
     }
   }
   
-  const handleAutoRestart = async () => {
+  const handleAutoRestart = useCallback(async () => {
     const success = await audioDetection.startDetection()
     
     if (success) {
@@ -48,16 +48,14 @@ export default function Home() {
       lastHitTimeRef.current = startTime
       currentSessionHits.current = 0  // Reset session hit counter
       
-      // For auto-restart, start timeout immediately since we're in continuous play mode
-      if (settings.sessionTimeout > 0) {
-        startInactivityTimer()
-      }
+      // Wait for first hit before starting timer (same as manual start)
+      setTimeRemaining(null)
     } else {
       alert('Could not access microphone. Please check permissions.')
     }
-  }
+  }, [audioDetection.startDetection])
   
-  const startInactivityTimer = () => {
+  const startInactivityTimer = useCallback(() => {
     // Clear any existing timer
     if (timeoutRef.current) {
       clearInterval(timeoutRef.current)
@@ -82,7 +80,7 @@ export default function Home() {
     
     // Store interval reference for cleanup
     timeoutRef.current = countdownInterval
-  }
+  }, [settings.sessionTimeout, handleTimeoutStop])
 
   const handleStop = () => {
     const finalScore = currentSessionHits.current
@@ -100,7 +98,7 @@ export default function Home() {
     setAutoRestartCountdown(null)
   }
   
-  const handleTimeoutStop = () => {
+  const handleTimeoutStop = useCallback(() => {
     const finalScore = currentSessionHits.current
     
     // Stop detection immediately to reset counter display
@@ -136,7 +134,7 @@ export default function Home() {
         handleAutoRestart()
       }
     }, 2000)
-  }
+  }, [audioDetection.stopDetection, audioDetection.isListening, audioDetection.isActive, settings.sessionTimeout, saveScore, handleAutoRestart])
   
   const clearTimeouts = () => {
     if (timeoutRef.current) {
@@ -154,7 +152,7 @@ export default function Home() {
     setAutoRestartCountdown(null)
   }
 
-  const saveScore = (score: number, duration: number) => {
+  const saveScore = useCallback((score: number, duration: number) => {
     const newScore = {
       id: crypto.randomUUID(),
       score,
@@ -179,7 +177,7 @@ export default function Home() {
       averageRallyLength: (prev.totalHits + score) / (prev.totalSessions + 1),
       totalPlayTime: prev.totalPlayTime + duration
     }))
-  }
+  }, [setRecentSessions, setHighscores, setStats])
   
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -206,7 +204,7 @@ export default function Home() {
       }
       // For subsequent hits, the timer continues running and uses the updated lastHitTimeRef
     }
-  }, [audioDetection.hitCount, audioDetection.isActive, settings.sessionTimeout])
+  }, [audioDetection.hitCount, audioDetection.isActive, settings.sessionTimeout, startInactivityTimer])
 
   // Cleanup on unmount
   useEffect(() => {
