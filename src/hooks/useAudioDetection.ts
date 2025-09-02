@@ -30,6 +30,11 @@ export function useAudioDetection(config: AudioDetectionConfig) {
   const animationFrameRef = useRef<number | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   
+  // Enhanced detection state
+  const previousLevelsRef = useRef<number[]>([])
+  const backgroundNoiseRef = useRef<number>(0)
+  const noiseCalibrationCountRef = useRef<number>(0)
+  
   const initializeAudio = useCallback(async () => {
     try {
       // Request microphone access
@@ -73,6 +78,11 @@ export function useAudioDetection(config: AudioDetectionConfig) {
       if (!initialized) return false
     }
     
+    // Reset detection state
+    previousLevelsRef.current = []
+    backgroundNoiseRef.current = 0
+    noiseCalibrationCountRef.current = 0
+    
     setState(prev => ({ ...prev, isActive: true, hitCount: 0 }))
     startAnalysis()
     return true
@@ -109,24 +119,62 @@ export function useAudioDetection(config: AudioDetectionConfig) {
       const minBin = Math.floor(config.frequencyMin / binSize)
       const maxBin = Math.floor(config.frequencyMax / binSize)
       
-      // Calculate average amplitude in target frequency range
-      let sum = 0
+      // Calculate different frequency bands for analysis
+      const lowMidBin = Math.floor(3000 / binSize)   // 3kHz
+      const highMidBin = Math.floor(6000 / binSize)  // 6kHz
+      
+      // Low-mid range (2-3kHz) - typical for paddle impact
+      let lowMidSum = 0
+      for (let i = minBin; i < lowMidBin; i++) {
+        lowMidSum += dataArray[i]
+      }
+      const lowMidAvg = lowMidSum / (lowMidBin - minBin)
+      
+      // High range (3-6kHz) - typical for paddle sound
+      let highSum = 0
       let maxAmplitude = 0
-      for (let i = minBin; i < maxBin; i++) {
-        sum += dataArray[i]
+      for (let i = lowMidBin; i < highMidBin; i++) {
+        highSum += dataArray[i]
         maxAmplitude = Math.max(maxAmplitude, dataArray[i])
       }
-      const averageAmplitude = sum / (maxBin - minBin)
-      // Use a combination of average and peak for better visualization
+      const highAvg = highSum / (highMidBin - lowMidBin)
+      
+      // Very high range (6-8kHz) - helps distinguish from speech
+      let veryHighSum = 0
+      for (let i = highMidBin; i < maxBin; i++) {
+        veryHighSum += dataArray[i]
+      }
+      const veryHighAvg = veryHighSum / (maxBin - highMidBin)
+      
+      // Combined level for visualization
+      const averageAmplitude = (lowMidSum + highSum + veryHighSum) / (maxBin - minBin)
       const normalizedLevel = Math.max(averageAmplitude / 255, maxAmplitude / 255 * 0.7)
       
+      // Keep track of recent levels for attack detection
+      const currentLevel = Math.max(lowMidAvg, highAvg, veryHighAvg) / 255
+      previousLevelsRef.current.push(currentLevel)
+      if (previousLevelsRef.current.length > 10) {
+        previousLevelsRef.current.shift()
+      }
+      
+      // Calibrate background noise level (first 100 samples)
+      if (noiseCalibrationCountRef.current < 100) {
+        backgroundNoiseRef.current = (backgroundNoiseRef.current * noiseCalibrationCountRef.current + currentLevel) / (noiseCalibrationCountRef.current + 1)
+        noiseCalibrationCountRef.current++
+      }
+      
       setState(prev => {
-        const threshold = config.sensitivity / 100
-        const now = Date.now()
+        if (!prev.isActive) return { ...prev, audioLevel: normalizedLevel }
         
-        if (normalizedLevel > threshold && 
-            now - prev.lastHitTime > config.minHitInterval &&
-            prev.isActive) {
+        const now = Date.now()
+        if (now - prev.lastHitTime < config.minHitInterval) {
+          return { ...prev, audioLevel: normalizedLevel }
+        }
+        
+        // Enhanced hit detection algorithm
+        const isHit = detectHit(currentLevel, highAvg, veryHighAvg, lowMidAvg)
+        
+        if (isHit) {
           return {
             ...prev,
             audioLevel: normalizedLevel,
@@ -139,6 +187,41 @@ export function useAudioDetection(config: AudioDetectionConfig) {
       })
       
       animationFrameRef.current = requestAnimationFrame(analyze)
+    }
+    
+    // Hit detection logic
+    const detectHit = (currentLevel: number, highAvg: number, veryHighAvg: number, lowMidAvg: number) => {
+      const baseThreshold = config.sensitivity / 100
+      const adaptiveThreshold = Math.max(baseThreshold, backgroundNoiseRef.current * 3)
+      
+      // 1. Volume threshold check
+      if (currentLevel < adaptiveThreshold) return false
+      
+      // 2. Sharp attack detection - current level should be significantly higher than recent average
+      const recentLevels = previousLevelsRef.current.slice(-5) // Last 5 samples
+      if (recentLevels.length > 2) {
+        const recentAvg = recentLevels.slice(0, -1).reduce((a, b) => a + b, 0) / (recentLevels.length - 1)
+        const attackRatio = currentLevel / (recentAvg + 0.01) // Add small value to avoid division by zero
+        
+        // Paddle hits have sharp attacks (ratio > 2.5)
+        if (attackRatio < 2.5) return false
+      }
+      
+      // 3. Frequency signature analysis - paddle hits have strong high frequencies
+      const highFreqRatio = (highAvg + veryHighAvg) / (lowMidAvg + 1) // Avoid division by zero
+      
+      // Paddle hits typically have significant high-frequency content
+      // Speech has more energy in lower frequencies
+      if (highFreqRatio < 0.8) return false
+      
+      // 4. Peak detection - paddle hits have sharp peaks
+      const normalizedHigh = highAvg / 255
+      const normalizedVeryHigh = veryHighAvg / 255
+      
+      // At least one of the high frequency bands should be strong
+      if (normalizedHigh < adaptiveThreshold && normalizedVeryHigh < adaptiveThreshold) return false
+      
+      return true
     }
     
     analyze()
