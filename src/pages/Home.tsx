@@ -85,6 +85,9 @@ export default function Home() {
   const handleTimeoutStop = () => {
     const finalScore = currentSessionHits.current
     
+    // Stop detection immediately to reset counter display
+    audioDetection.stopDetection()
+    
     // Save score using the tracked session hits
     const duration = settings.sessionTimeout
     saveScore(finalScore, duration)
