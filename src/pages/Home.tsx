@@ -11,6 +11,7 @@ export default function Home() {
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null)
   const [recentSessions, setRecentSessions] = useState<Score[]>([])
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
+  const [autoRestartCountdown, setAutoRestartCountdown] = useState<number | null>(null)
   const timeoutRef = useRef<number | null>(null)
   const lastHitTimeRef = useRef<number>(0)
   const currentSessionHits = useRef<number>(0)
@@ -78,12 +79,11 @@ export default function Home() {
     // Reset session time and hit counter after saving
     setSessionStartTime(null)
     currentSessionHits.current = 0
+    setAutoRestartCountdown(null)
   }
   
   const handleTimeoutStop = () => {
     const finalScore = currentSessionHits.current
-    
-    audioDetection.stopDetection()
     
     // Save score using the tracked session hits
     const duration = settings.sessionTimeout
@@ -92,6 +92,29 @@ export default function Home() {
     // Clear session time and hit counter
     setSessionStartTime(null)
     currentSessionHits.current = 0
+    
+    // Show auto-restart countdown
+    setAutoRestartCountdown(2)
+    
+    // Countdown animation
+    const countdownInterval = setInterval(() => {
+      setAutoRestartCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownInterval)
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
+    
+    // Auto-restart after countdown
+    setTimeout(() => {
+      setAutoRestartCountdown(null)
+      // Only auto-restart if the user hasn't manually stopped
+      if (audioDetection.isListening && !audioDetection.isActive) {
+        handleStart()
+      }
+    }, 2000)
   }
   
   const clearTimeouts = () => {
@@ -107,6 +130,7 @@ export default function Home() {
     audioDetection.resetCounter()
     setSessionStartTime(null)
     currentSessionHits.current = 0
+    setAutoRestartCountdown(null)
   }
 
   const saveScore = (score: number, duration: number) => {
@@ -235,6 +259,13 @@ export default function Home() {
                 {t('home.waitingForFirstHit')}
               </span>
             )}
+          </div>
+        )}
+        {autoRestartCountdown !== null && (
+          <div className="text-lg font-semibold mt-2">
+            <span className="text-green-600 dark:text-green-400">
+              Auto-restarting in {autoRestartCountdown}s...
+            </span>
           </div>
         )}
       </div>
