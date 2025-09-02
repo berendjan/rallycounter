@@ -130,7 +130,7 @@ export default function Home() {
     setTimeout(() => {
       setAutoRestartCountdown(null)
       // Only auto-restart if the user hasn't manually stopped
-      if (audioDetection.isListening && !audioDetection.isActive) {
+      if (!audioDetection.isActive) {
         handleAutoRestart()
       }
     }, 2000)
