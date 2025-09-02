@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAudioDetection } from '../hooks/useAudioDetection'
 import { useSettings, useHighscores, useStats, type Score } from '../hooks/useLocalStorage'
