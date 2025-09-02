@@ -45,16 +45,19 @@ export default function Settings() {
           <div className="space-y-3">
             <input 
               type="range" 
-              min="10" 
-              max="90" 
+              min="1" 
+              max="95" 
               value={settings.sensitivity}
               onChange={(e) => handleSensitivityChange(Number(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>Low (10%)</span>
-              <span className="font-medium">{settings.sensitivity}%</span>
-              <span>High (90%)</span>
+              <span>Low Threshold<br/><strong>More Sensitive</strong></span>
+              <span className="font-medium text-center">{settings.sensitivity}%</span>
+              <span className="text-right">High Threshold<br/><strong>Less Sensitive</strong></span>
+            </div>
+            <div className="text-xs text-gray-400 mt-2 text-center">
+              <strong>Lower values</strong> = detects quiet sounds easily • <strong>Higher values</strong> = only loud sounds register
             </div>
           </div>
         </div>

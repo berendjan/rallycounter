@@ -52,7 +52,7 @@ export interface Stats {
 
 export function useSettings() {
   const defaultSettings: Settings = {
-    sensitivity: 50,
+    sensitivity: 25, // More sensitive default (was 50)
     minHitInterval: 200,
     theme: 'light',
     soundEnabled: true,

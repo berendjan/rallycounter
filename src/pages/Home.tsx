@@ -31,10 +31,8 @@ export default function Home() {
       lastHitTimeRef.current = startTime
       currentSessionHits.current = 0  // Reset session hit counter
       
-      // Set up timeout if configured
-      if (settings.sessionTimeout > 0) {
-        startInactivityTimer()
-      }
+      // Don't start timeout timer yet - wait for first hit
+      setTimeRemaining(null)
     } else {
       alert('Could not access microphone. Please check permissions.')
     }
@@ -150,12 +148,18 @@ export default function Home() {
     return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`
   }
   
-  // Watch for hit count changes to reset timer and track session hits
+  // Watch for hit count changes to start/reset timer and track session hits
   useEffect(() => {
     if (audioDetection.isActive && audioDetection.hitCount > 0 && settings.sessionTimeout > 0) {
       lastHitTimeRef.current = Date.now()
       currentSessionHits.current = audioDetection.hitCount  // Track the current session hits
-      // Don't restart timer immediately, let the current one continue from the new lastHitTime
+      
+      // Start timer on first hit, or reset it continues from the new lastHitTime
+      if (audioDetection.hitCount === 1) {
+        // First hit - start the inactivity timer
+        startInactivityTimer()
+      }
+      // For subsequent hits, the timer continues running and uses the updated lastHitTimeRef
     }
   }, [audioDetection.hitCount, audioDetection.isActive, settings.sessionTimeout])
 
@@ -220,9 +224,17 @@ export default function Home() {
             Session: {Math.floor((Date.now() - sessionStartTime) / 1000)}s
           </div>
         )}
-        {timeRemaining !== null && (
-          <div className="text-lg font-semibold text-orange-600 mt-2">
-            Inactivity Timeout: {formatTime(Math.ceil(timeRemaining))}
+        {audioDetection.isActive && settings.sessionTimeout > 0 && (
+          <div className="text-lg font-semibold mt-2">
+            {timeRemaining !== null ? (
+              <span className="text-orange-600">
+                Inactivity Timeout: {formatTime(Math.ceil(timeRemaining))}
+              </span>
+            ) : (
+              <span className="text-blue-600">
+                Waiting for first hit...
+              </span>
+            )}
           </div>
         )}
       </div>
