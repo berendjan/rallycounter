@@ -172,16 +172,16 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-4">
-      <h1 className="text-4xl font-bold mb-8">{t('home.title')}</h1>
+      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-gray-100">{t('home.title')}</h1>
       
-      <div className="text-8xl font-mono mb-8 text-blue-600">
+      <div className="text-8xl font-mono mb-8 text-blue-600 dark:text-blue-400">
         {audioDetection.hitCount}
       </div>
       
       {/* Audio level indicator */}
       <div className="w-64 mb-8">
-        <div className="text-sm text-gray-600 mb-2">Audio Level</div>
-        <div className="w-full bg-gray-200 rounded-full h-4">
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('home.audioLevel')}</div>
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
           <div 
             className="bg-green-500 h-4 rounded-full transition-all duration-100"
             style={{ width: `${audioDetection.audioLevel * 100}%` }}
@@ -212,27 +212,27 @@ export default function Home() {
         </button>
       </div>
       
-      <div className="text-center text-gray-600 mb-6">
+      <div className="text-center text-gray-600 dark:text-gray-400 mb-6">
         <div className="text-sm">
           {audioDetection.isListening ? 
-            (audioDetection.isActive ? 'Listening for paddle hits...' : 'Microphone ready') :
-            'Microphone not connected'
+            (audioDetection.isActive ? t('home.listeningActive') : t('home.microphoneReady')) :
+            t('home.microphoneNotConnected')
           }
         </div>
         {sessionStartTime && (
           <div className="text-xs mt-1">
-            Session: {Math.floor((Date.now() - sessionStartTime) / 1000)}s
+            {t('home.session')}: {Math.floor((Date.now() - sessionStartTime) / 1000)}s
           </div>
         )}
         {audioDetection.isActive && settings.sessionTimeout > 0 && (
           <div className="text-lg font-semibold mt-2">
             {timeRemaining !== null ? (
-              <span className="text-orange-600">
+              <span className="text-orange-600 dark:text-orange-400">
                 Inactivity Timeout: {formatTime(Math.ceil(timeRemaining))}
               </span>
             ) : (
-              <span className="text-blue-600">
-                Waiting for first hit...
+              <span className="text-blue-600 dark:text-blue-400">
+                {t('home.waitingForFirstHit')}
               </span>
             )}
           </div>
@@ -242,26 +242,26 @@ export default function Home() {
       {/* Current Session Scores */}
       {recentSessions.length > 0 && (
         <div className="w-full max-w-md mb-6">
-          <h3 className="text-lg font-semibold mb-3 text-center">This Session</h3>
+          <h3 className="text-lg font-semibold mb-3 text-center text-gray-900 dark:text-gray-100">{t('home.thisSession')}</h3>
           <div className="space-y-2">
             {recentSessions.map((session, index) => (
               <div 
                 key={session.id}
                 className={`p-3 rounded-lg border-2 ${
-                  index === 0 ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
+                  index === 0 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800'
                 }`}
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-bold text-lg">{session.score} hits</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="font-bold text-lg text-gray-900 dark:text-gray-100">{session.score} hits</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(session.date).toLocaleTimeString()}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium">{formatDuration(session.duration)}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatDuration(session.duration)}</div>
                     {index === 0 && (
-                      <div className="text-xs text-blue-600 font-semibold">Latest</div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400 font-semibold">{t('home.latest')}</div>
                     )}
                   </div>
                 </div>
