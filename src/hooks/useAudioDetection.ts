@@ -124,22 +124,9 @@ export function useAudioDetection(config: AudioDetectionConfig) {
         const threshold = config.sensitivity / 100
         const now = Date.now()
         
-        // Debug logging
-        if (normalizedLevel > 0.1) {
-          console.log('Audio detected:', {
-            normalizedLevel: normalizedLevel.toFixed(3),
-            threshold: threshold.toFixed(3),
-            timeSinceLastHit: now - prev.lastHitTime,
-            minInterval: config.minHitInterval,
-            isActive: prev.isActive,
-            willTrigger: normalizedLevel > threshold && now - prev.lastHitTime > config.minHitInterval && prev.isActive
-          })
-        }
-        
         if (normalizedLevel > threshold && 
             now - prev.lastHitTime > config.minHitInterval &&
             prev.isActive) {
-          console.log('HIT DETECTED! Count:', prev.hitCount + 1)
           return {
             ...prev,
             audioLevel: normalizedLevel,

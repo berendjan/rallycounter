@@ -6,12 +6,12 @@ import { useSettings, useHighscores, useStats, type Score } from '../hooks/useLo
 export default function Home() {
   const { t } = useTranslation()
   const [settings] = useSettings()
-  const [highscores, setHighscores] = useHighscores()
-  const [stats, setStats] = useStats()
+  const [, setHighscores] = useHighscores()
+  const [, setStats] = useStats()
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null)
   const [recentSessions, setRecentSessions] = useState<Score[]>([])
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<number | null>(null)
   const lastHitTimeRef = useRef<number>(0)
   const currentSessionHits = useRef<number>(0)
   
@@ -23,23 +23,17 @@ export default function Home() {
   })
 
   const handleStart = async () => {
-    console.log('Starting session...')
     const success = await audioDetection.startDetection()
-    console.log('Audio detection started:', success)
     
     if (success) {
       const startTime = Date.now()
-      console.log('Setting session start time:', startTime)
       setSessionStartTime(startTime)
       lastHitTimeRef.current = startTime
       currentSessionHits.current = 0  // Reset session hit counter
       
       // Set up timeout if configured
       if (settings.sessionTimeout > 0) {
-        console.log('Starting inactivity timer with timeout:', settings.sessionTimeout)
         startInactivityTimer()
-      } else {
-        console.log('No timeout configured')
       }
     } else {
       alert('Could not access microphone. Please check permissions.')
@@ -75,21 +69,12 @@ export default function Home() {
 
   const handleStop = () => {
     const finalScore = currentSessionHits.current
-    console.log('Handle stop called', { 
-      sessionStartTime, 
-      audioHitCount: audioDetection.hitCount,
-      sessionHitCount: finalScore,
-      isActive: audioDetection.isActive 
-    })
     
     clearTimeouts()
     audioDetection.stopDetection()
     if (sessionStartTime) {
       const duration = (Date.now() - sessionStartTime) / 1000
-      console.log('Calling saveScore with:', { score: finalScore, duration })
       saveScore(finalScore, duration)
-    } else {
-      console.log('Not saving score because sessionStartTime is null')
     }
     
     // Reset session time and hit counter after saving
@@ -99,19 +84,11 @@ export default function Home() {
   
   const handleTimeoutStop = () => {
     const finalScore = currentSessionHits.current
-    console.log('Timeout stop called', { 
-      sessionStartTime, 
-      audioHitCount: audioDetection.hitCount,
-      sessionHitCount: finalScore,
-      sessionTimeout: settings.sessionTimeout,
-      isActive: audioDetection.isActive
-    })
     
     audioDetection.stopDetection()
     
     // Save score using the tracked session hits
     const duration = settings.sessionTimeout
-    console.log('Calling saveScore from timeout with:', { score: finalScore, duration })
     saveScore(finalScore, duration)
     
     // Clear session time and hit counter
@@ -135,8 +112,6 @@ export default function Home() {
   }
 
   const saveScore = (score: number, duration: number) => {
-    console.log('Saving score:', { score, duration })
-    
     const newScore = {
       id: crypto.randomUUID(),
       score,
@@ -146,21 +121,11 @@ export default function Home() {
       longestRally: score
     }
     
-    console.log('New score object:', newScore)
-    
     // Add to recent sessions (keep last 5)
-    setRecentSessions(prev => {
-      const updated = [newScore, ...prev].slice(0, 5)
-      console.log('Updated recent sessions:', updated)
-      return updated
-    })
+    setRecentSessions(prev => [newScore, ...prev].slice(0, 5))
     
     // Add to high scores
-    setHighscores(prev => {
-      const updated = [...prev, newScore].sort((a, b) => b.score - a.score).slice(0, 10)
-      console.log('Updated high scores:', updated)
-      return updated
-    })
+    setHighscores(prev => [...prev, newScore].sort((a, b) => b.score - a.score).slice(0, 10))
     
     // Update stats
     setStats(prev => ({
@@ -171,8 +136,6 @@ export default function Home() {
       averageRallyLength: (prev.totalHits + score) / (prev.totalSessions + 1),
       totalPlayTime: prev.totalPlayTime + duration
     }))
-    
-    // Don't reset sessionStartTime here - let the calling function handle it
   }
   
   const formatTime = (seconds: number) => {
@@ -192,7 +155,6 @@ export default function Home() {
     if (audioDetection.isActive && audioDetection.hitCount > 0 && settings.sessionTimeout > 0) {
       lastHitTimeRef.current = Date.now()
       currentSessionHits.current = audioDetection.hitCount  // Track the current session hits
-      console.log('Hit detected, updated session hits:', currentSessionHits.current)
       // Don't restart timer immediately, let the current one continue from the new lastHitTime
     }
   }, [audioDetection.hitCount, audioDetection.isActive, settings.sessionTimeout])
@@ -265,11 +227,6 @@ export default function Home() {
         )}
       </div>
       
-      {/* Debug Info */}
-      <div className="text-xs text-gray-400 mb-2 text-center">
-        Recent sessions: {recentSessions.length} | Highscores: {highscores.length}
-      </div>
-
       {/* Current Session Scores */}
       {recentSessions.length > 0 && (
         <div className="w-full max-w-md mb-6">
