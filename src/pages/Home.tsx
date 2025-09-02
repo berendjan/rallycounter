@@ -39,6 +39,24 @@ export default function Home() {
     }
   }
   
+  const handleAutoRestart = async () => {
+    const success = await audioDetection.startDetection()
+    
+    if (success) {
+      const startTime = Date.now()
+      setSessionStartTime(startTime)
+      lastHitTimeRef.current = startTime
+      currentSessionHits.current = 0  // Reset session hit counter
+      
+      // For auto-restart, start timeout immediately since we're in continuous play mode
+      if (settings.sessionTimeout > 0) {
+        startInactivityTimer()
+      }
+    } else {
+      alert('Could not access microphone. Please check permissions.')
+    }
+  }
+  
   const startInactivityTimer = () => {
     // Clear any existing timer
     if (timeoutRef.current) {
@@ -115,7 +133,7 @@ export default function Home() {
       setAutoRestartCountdown(null)
       // Only auto-restart if the user hasn't manually stopped
       if (audioDetection.isListening && !audioDetection.isActive) {
-        handleStart()
+        handleAutoRestart()
       }
     }, 2000)
   }
