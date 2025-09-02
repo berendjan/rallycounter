@@ -39,7 +39,7 @@ export default function Home() {
     }
   }
   
-  const handleAutoRestart = useCallback(async () => {
+  const handleAutoRestart = async () => {
     const success = await audioDetection.startDetection()
     
     if (success) {
@@ -53,7 +53,7 @@ export default function Home() {
     } else {
       alert('Could not access microphone. Please check permissions.')
     }
-  }, [audioDetection.startDetection])
+  }
   
   const startInactivityTimer = useCallback(() => {
     // Clear any existing timer
@@ -80,7 +80,7 @@ export default function Home() {
     
     // Store interval reference for cleanup
     timeoutRef.current = countdownInterval
-  }, [settings.sessionTimeout, handleTimeoutStop])
+  }, [settings.sessionTimeout])
 
   const handleStop = () => {
     const finalScore = currentSessionHits.current
@@ -98,7 +98,7 @@ export default function Home() {
     setAutoRestartCountdown(null)
   }
   
-  const handleTimeoutStop = useCallback(() => {
+  const handleTimeoutStop = () => {
     const finalScore = currentSessionHits.current
     
     // Stop detection immediately to reset counter display
@@ -134,7 +134,7 @@ export default function Home() {
         handleAutoRestart()
       }
     }, 2000)
-  }, [audioDetection.stopDetection, audioDetection.isListening, audioDetection.isActive, settings.sessionTimeout, saveScore, handleAutoRestart])
+  }
   
   const clearTimeouts = () => {
     if (timeoutRef.current) {
