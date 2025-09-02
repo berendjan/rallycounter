@@ -1,0 +1,56 @@
+{
+  "navigation": {
+    "home": "Accueil",
+    "scores": "Scores",
+    "settings": "Paramètres",
+    "help": "Aide"
+  },
+  "home": {
+    "title": "Compteur de Rally",
+    "start": "Démarrer",
+    "stop": "Arrêter",
+    "reset": "Réinitialiser",
+    "currentScore": "Score Actuel"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "audioSensitivity": "Sensibilité Audio",
+    "language": "Langue",
+    "minHitInterval": "Intervalle Minimum de Frappe",
+    "theme": "Thème",
+    "calibrate": "Calibrer l'Audio"
+  },
+  "scores": {
+    "title": "Meilleurs Scores",
+    "noScores": "Aucun score encore",
+    "freePlay": "Jeu Libre",
+    "timedChallenge": "Défi Chronométré",
+    "targetChallenge": "Défi Cible",
+    "duration": "Durée",
+    "export": "Exporter les Données",
+    "clear": "Tout Effacer"
+  },
+  "help": {
+    "title": "Aide",
+    "howToUse": "Comment Utiliser",
+    "troubleshooting": "Dépannage",
+    "instructions": {
+      "step1": "Autoriser les permissions du microphone quand demandé",
+      "step2": "Tenir votre téléphone près de la table de ping-pong",
+      "step3": "Appuyer sur Démarrer pour commencer le comptage",
+      "step4": "L'app détectera automatiquement les coups de raquette"
+    },
+    "tips": {
+      "sensitivity": "Ajuster la sensibilité dans Paramètres si les coups ne sont pas détectés",
+      "permissions": "S'assurer que les permissions du microphone sont activées",
+      "calibration": "Essayer de calibrer dans un environnement silencieux"
+    }
+  },
+  "common": {
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "ok": "OK",
+    "error": "Erreur",
+    "loading": "Chargement..."
+  }
+}

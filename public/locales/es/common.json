@@ -1,0 +1,56 @@
+{
+  "navigation": {
+    "home": "Inicio",
+    "scores": "Puntuaciones",
+    "settings": "Configuración",
+    "help": "Ayuda"
+  },
+  "home": {
+    "title": "Contador de Rally",
+    "start": "Iniciar",
+    "stop": "Parar",
+    "reset": "Reiniciar",
+    "currentScore": "Puntuación Actual"
+  },
+  "settings": {
+    "title": "Configuración",
+    "audioSensitivity": "Sensibilidad de Audio",
+    "language": "Idioma",
+    "minHitInterval": "Intervalo Mínimo de Golpe",
+    "theme": "Tema",
+    "calibrate": "Calibrar Audio"
+  },
+  "scores": {
+    "title": "Mejores Puntuaciones",
+    "noScores": "Sin puntuaciones aún",
+    "freePlay": "Juego Libre",
+    "timedChallenge": "Desafío Cronometrado",
+    "targetChallenge": "Desafío Objetivo",
+    "duration": "Duración",
+    "export": "Exportar Datos",
+    "clear": "Limpiar Todo"
+  },
+  "help": {
+    "title": "Ayuda",
+    "howToUse": "Cómo Usar",
+    "troubleshooting": "Solución de Problemas",
+    "instructions": {
+      "step1": "Permitir permisos de micrófono cuando se solicite",
+      "step2": "Mantén tu teléfono cerca de la mesa de ping pong",
+      "step3": "Presiona Iniciar para comenzar a contar",
+      "step4": "La app detectará automáticamente los golpes de raqueta"
+    },
+    "tips": {
+      "sensitivity": "Ajustar sensibilidad en Configuración si no se detectan golpes",
+      "permissions": "Asegurarse de que los permisos del micrófono estén activados",
+      "calibration": "Intentar calibrar en un ambiente silencioso"
+    }
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "ok": "OK",
+    "error": "Error",
+    "loading": "Cargando..."
+  }
+}

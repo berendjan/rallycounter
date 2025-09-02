@@ -1,0 +1,56 @@
+{
+  "navigation": {
+    "home": "Start",
+    "scores": "Punkte",
+    "settings": "Einstellungen",
+    "help": "Hilfe"
+  },
+  "home": {
+    "title": "Rally Zähler",
+    "start": "Start",
+    "stop": "Stop",
+    "reset": "Zurücksetzen",
+    "currentScore": "Aktuelle Punktzahl"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "audioSensitivity": "Audio Empfindlichkeit",
+    "language": "Sprache",
+    "minHitInterval": "Mindest-Hit-Intervall",
+    "theme": "Thema",
+    "calibrate": "Audio Kalibrieren"
+  },
+  "scores": {
+    "title": "Bestenliste",
+    "noScores": "Noch keine Punkte",
+    "freePlay": "Freies Spiel",
+    "timedChallenge": "Zeit Herausforderung",
+    "targetChallenge": "Ziel Herausforderung",
+    "duration": "Dauer",
+    "export": "Daten Exportieren",
+    "clear": "Alle Löschen"
+  },
+  "help": {
+    "title": "Hilfe",
+    "howToUse": "Anwendung",
+    "troubleshooting": "Fehlerbehebung",
+    "instructions": {
+      "step1": "Mikrofon-Berechtigung erteilen wenn gefragt",
+      "step2": "Telefon nahe dem Tischtennistisch halten",
+      "step3": "Start drücken um mit dem Zählen zu beginnen",
+      "step4": "Die App erkennt Schläger-Treffer automatisch"
+    },
+    "tips": {
+      "sensitivity": "Empfindlichkeit in Einstellungen anpassen falls Treffer nicht erkannt werden",
+      "permissions": "Sicherstellen dass Mikrofon-Berechtigung aktiviert ist",
+      "calibration": "Kalibrierung in ruhiger Umgebung versuchen"
+    }
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "ok": "OK",
+    "error": "Fehler",
+    "loading": "Laden..."
+  }
+}
